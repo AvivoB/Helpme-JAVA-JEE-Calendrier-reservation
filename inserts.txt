@@ -1,0 +1,30 @@
+call ajout_client("Werner", "Timo", "timo@werner.com", "123", "somewhere", "in London", "12345");
+call ajout_client("Havertz", "Kai", "kai@havertz.com", "123", "somewhere", "in London", "12345");
+call ajout_client("Lukaku", "Romelu", "romelu@lukaku.com", "123", "somewhere", "in London", "12345");
+call ajout_client("Silva", "Thiago", "thiago@silva.com", "123", "somewhere", "in London", "12345");
+call ajout_client("Antonio", "Rudiger", "antonio@rudiger.com", "123", "somewhere", "in London", "12345");
+
+call ajout_assistant("da Silva", "Francesca", "francesca@dasilva", "123", "12");
+call ajout_assistant("Dacourt", "Romain", "romain@dacourt", "123", "6");
+call ajout_assistant("Gilliard", "Emilie", "emilie@gilliard", "123", "7");
+
+call ajout_chauffeur("Mariano", "Benjamin", "benjamin@mariano", "123", "BMW");
+call ajout_chauffeur("Mirinda", "Esteban", "esteban@mirinda", "123", "Mercedes");
+call ajout_chauffeur("Delaroux", "Etienne", "etienne@delaroux", "123", "Peugeot");
+
+call ajout_reserv_aide_domicile(
+"2022-01-14","10:00:00",1,"Aide a la maison","12:00:00",6
+);
+call ajout_reserv_aide_domicile(
+"2022-01-15","14:00:00",2,"Aide a la maison","16:00:00",1
+);
+call ajout_reserv_aide_domicile(
+"2022-01-14","17:00:00",1,"Aide pour les courses","18:00:00",2
+);
+
+call ajout_reserv_transport(
+"2022-02-16","12:00:00",1,"1 rue somewhere", "London", "12345", "3"
+);
+call ajout_reserv_transport(
+"2022-03-02","12:00:00",2,"1 rue somewhere", "London", "12345", "4"
+);

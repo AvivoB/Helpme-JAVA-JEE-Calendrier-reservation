@@ -1,0 +1,399 @@
+drop database if exists dev3;
+create database dev3; use dev3;
+
+CREATE TABLE client(
+   id INT,
+   client_nom VARCHAR(50),
+   client_prenom VARCHAR(50),
+   client_mail VARCHAR(50),
+   client_mdp VARCHAR(50),
+   client_adresse VARCHAR(50),
+   client_ville VARCHAR(50),
+   client_code_postal VARCHAR(50),
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE prestataire(
+   id INT,
+   prestataire_nom VARCHAR(50),
+   prestataire_prenom VARCHAR(50),
+   prestataire_mail VARCHAR(50),
+   prestataire_mdp VARCHAR(50),
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE assistant(
+   id INT,
+   prestataire_nom VARCHAR(50),
+   prestataire_prenom VARCHAR(50),
+   prestataire_mail VARCHAR(50),
+   prestataire_mdp VARCHAR(50),
+experience int,
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE chauffeur(
+  id INT,
+   prestataire_nom VARCHAR(50),
+   prestataire_prenom VARCHAR(50),
+   prestataire_mail VARCHAR(50),
+   prestataire_mdp VARCHAR(50),
+   type_voiture VARCHAR(50),
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE service(
+   id INT,
+   service_date DATE,
+   service_heure TIME,
+   client_id INT NOT NULL,
+pres_id INT NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(client_id) REFERENCES client(id)
+);
+
+CREATE TABLE reserv_transport(
+   id INT,
+   service_date DATE,
+   service_heure TIME,
+   client_id INT NOT NULL,
+   adresse_location VARCHAR(100),
+ville varchar(50),
+   code_postal_location VARCHAR(5),
+   pres_id INT NOT NULL,
+   PRIMARY KEY(id),
+UNIQUE(service_date, service_heure),
+FOREIGN KEY(client_id) REFERENCES client(id)
+);
+
+CREATE TABLE reserv_aide_domicile(
+   id INT,
+   service_date DATE,
+   service_heure TIME,
+   client_id INT NOT NULL,
+   description VARCHAR(255),
+   heure_depart TIME,
+   heure_arrive TIME,
+   pres_id INT NOT NULL,
+   PRIMARY KEY(id),
+UNIQUE(service_date, service_heure,heure_depart, heure_arrive),
+FOREIGN KEY(client_id) REFERENCES client(id)
+);
+
+--
+--TRIGGERS POUR ASSISTANT
+--
+--AJOUT ASSISTANT
+--
+drop trigger if exists ajout_assistant;
+delimiter //
+create trigger ajout_assistant
+before insert on assistant
+for each row 
+begin 
+declare id_count int;
+select count(*) into id_count
+from prestataire;
+
+if id_count = 0 then 
+	insert into prestataire values (1, new.prestataire_nom, new.prestataire_prenom, new.prestataire_mail, new.prestataire_mdp);
+else
+	insert into prestataire values (new.id, new.prestataire_nom, new.prestataire_prenom, new.prestataire_mail, new.prestataire_mdp);
+end if;
+
+end//
+delimiter ;
+
+--
+--MODIFIER ASSISTANT
+--
+drop trigger if exists update_assistant;
+delimiter //
+create trigger update_assistant
+before update on assistant
+for each row 
+begin 
+
+update prestataire set prestataire_nom = new.prestataire_nom, prestataire_prenom = new.prestataire_prenom, prestataire_mail = new.prestataire_mail, prestataire_mdp = new.prestataire_mdp where id = new.id;
+
+end//
+delimiter ;
+
+--
+--SUPPRIMER ASSISTANT
+--
+drop trigger if exists delete_assistant;
+delimiter //
+create trigger delete_assistant
+before delete on assistant
+for each row 
+begin 
+
+delete from prestataire where id = old.id;
+
+end//
+delimiter ;
+
+--
+--TRIGGERS POUR CHAUFFEUR
+--
+--AJOUT CHAUFFEUR
+--
+drop trigger if exists ajout_chauffeur;
+delimiter //
+create trigger ajout_chauffeur
+before insert on chauffeur
+for each row 
+begin 
+declare id_count int;
+select count(*) into id_count
+from prestataire;
+
+if id_count = 0 then 
+	insert into prestataire values (1, new.prestataire_nom, new.prestataire_prenom, new.prestataire_mail, new.prestataire_mdp);
+else
+	insert into prestataire values (new.id, new.prestataire_nom, new.prestataire_prenom, new.prestataire_mail, new.prestataire_mdp);
+end if;
+
+end//
+delimiter ;
+
+--
+--MODIFIER CHAUFFEUR
+--
+drop trigger if exists update_chauffeur;
+delimiter //
+create trigger update_chauffeur
+before update on chauffeur
+for each row 
+begin 
+
+update prestataire set prestataire_nom = new.prestataire_nom, prestataire_prenom = new.prestataire_prenom, prestataire_mail = new.prestataire_mail, prestataire_mdp = new.prestataire_mdp where id = new.id;
+
+end//
+delimiter ;
+
+--
+--SUPPRIMER CHAUFFEUR
+--
+drop trigger if exists delete_chauffeur;
+delimiter //
+create trigger delete_chauffeur
+before delete on chauffeur
+for each row 
+begin 
+
+delete from prestataire where id = old.id;
+
+end//
+delimiter ;
+
+--
+--TRIGGERS POUR RESERV_TRANSPORT
+--
+--AJOUT RESERV_TRANSPORT
+--
+drop trigger if exists ajout_reserv_transport;
+delimiter //
+create trigger ajout_reserv_transport
+before insert on reserv_transport
+for each row 
+begin 
+
+insert into service
+values 
+(new.id, new.service_date, new.service_heure, new.client_id, new.pres_id);
+
+end//
+delimiter ;
+
+--
+--MODIFIER RESERV_TRANSPORT
+--
+drop trigger if exists update_reserv_transport;
+delimiter //
+create trigger update_reserv_transport
+before update on reserv_transport
+for each row 
+begin 
+
+update service
+set service_date = new.service_date, service_heure = new.service_heure, client_id = new.client_id, pres_id = new.pres_id where id = new.id;
+
+end//
+delimiter ;
+
+--
+--TRIGGERS POUR RESERV_AIDE_DOMICILE
+--
+--AJOUT RESERV_AIDE_DOMICILE
+--
+drop trigger if exists ajout_reserv_aide_domicile;
+delimiter //
+create trigger ajout_reserv_aide_domicile
+before insert on reserv_aide_domicile
+for each row 
+begin 
+
+insert into service
+values 
+(new.id, new.service_date, new.service_heure, new.client_id, new.pres_id);
+
+end//
+delimiter ;
+
+--
+--MODIFIER RESERV_AIDE_DOMICILE
+--
+drop trigger if exists update_reserv_aide_domicile;
+delimiter //
+create trigger update_reserv_aide_domicile
+before update on reserv_aide_domicile
+for each row 
+begin 
+
+update service
+set service_date = new.service_date, service_heure = new.service_heure, client_id = new.client_id, pres_id = new.pres_id where id = new.id;
+
+end//
+delimiter ;
+
+--
+--SUPPRIMER SERVICES
+--
+drop trigger if exists delete_service;
+delimiter //
+create trigger delete_service
+before delete on service
+for each row 
+begin 
+
+delete from reserv_aide_domicile where id = old.id;
+delete from reserv_transport where id = old.id;
+
+end//
+delimiter ;
+
+--
+--PROCEDURES
+--
+--
+--PROCEDURE CLIENT
+--
+drop procedure if exists ajout_client;
+delimiter //
+CREATE PROCEDURE ajout_client(IN nom varchar(50), IN prenom varchar(50), IN mail varchar(50), IN mdp varchar(50), IN adresse varchar(50), IN ville varchar(50), IN cp varchar(5))
+BEGIN
+declare id_count int;
+declare _id int;
+select count(id) into id_count from client;
+select id+1 into _id from client order by id desc limit 1;
+
+if id_count=0 then
+	INSERT INTO client values(1, nom, prenom, mail, mdp, adresse, ville, cp);
+else
+	INSERT INTO client values(_id, nom, prenom, mail, mdp, adresse, ville, cp);
+end if;
+END //
+delimiter ;
+
+--
+--PROCEDURE ASSISTANT
+--
+drop procedure if exists ajout_assistant;
+delimiter //
+CREATE PROCEDURE ajout_assistant(IN nom varchar(50), IN prenom varchar(50), IN mail varchar(50), IN mdp varchar(50), IN exp int) 
+BEGIN
+declare id_count int;
+declare _id int;
+select count(id) into id_count from prestataire;
+select id+1 into _id from prestataire order by id desc limit 1;
+
+if id_count=0 then
+	INSERT INTO assistant values(1, nom, prenom, mail, mdp, exp);
+else
+	INSERT INTO assistant values(_id, nom, prenom, mail, mdp, exp);
+end if;
+END //
+delimiter ;
+
+--
+--PROCEDURE CHAUFFEUR
+--
+drop procedure if exists ajout_chauffeur;
+delimiter //
+CREATE PROCEDURE ajout_chauffeur(IN nom varchar(50), IN prenom varchar(50), IN mail varchar(50), IN mdp varchar(50), IN voiture varchar(50))
+BEGIN
+declare id_count int;
+declare _id int;
+select count(id) into id_count from prestataire;
+select id+1 into _id from prestataire order by id desc limit 1;
+
+if id_count=0 then
+	INSERT INTO chauffeur values(1, nom, prenom, mail, mdp, voiture);
+else
+	INSERT INTO chauffeur values(_id, nom, prenom, mail, mdp, voiture);
+end if;
+END //
+delimiter ;
+
+
+--
+--PROCEDURE RESERVATION AIDE A DOMICILE
+--
+drop procedure if exists ajout_reserv_aide_domicile;
+delimiter //
+CREATE PROCEDURE ajout_reserv_aide_domicile(IN s_date date, IN s_heure time, IN client_id int, IN description varchar(255), IN h_depart time, IN prestataire_id int)
+BEGIN
+declare id_count int;
+declare _id int;
+select count(id) into id_count from service;
+select id+1 into _id from service order by id desc limit 1;
+
+if id_count=0 then
+	INSERT INTO reserv_aide_domicile values(1, s_date, s_heure, client_id, description, h_depart, s_heure, prestataire_id);
+else
+	INSERT INTO reserv_aide_domicile values(_id, s_date, s_heure, client_id, description, h_depart, s_heure, prestataire_id);
+end if;
+END //
+delimiter ;
+
+--
+--PROCEDURE RESERVATION TRANSPORT
+--
+drop procedure if exists ajout_reserv_transport;
+delimiter //
+CREATE PROCEDURE ajout_reserv_transport(IN s_date date, IN s_heure time, IN client_id int, IN adresse varchar(50), IN ville varchar(50), IN cp varchar(5), IN prestataire_id int)
+BEGIN
+declare id_count int;
+declare _id int;
+select count(id) into id_count from service;
+select id+1 into _id from service order by id desc limit 1;
+
+if id_count=0 then
+	INSERT INTO reserv_transport values(1, s_date, s_heure, client_id, adresse, ville, cp, prestataire_id);
+else
+	INSERT INTO reserv_transport values(_id, s_date, s_heure, client_id, adresse, ville, cp, prestataire_id);
+end if;
+END //
+delimiter ;
+
+--
+--VUES
+--
+--VUE SERVICE
+--
+CREATE OR REPLACE VIEW service_v as
+select s.id, s.service_date, s.service_heure, c.id, c.client_nom, c.client_prenom, p.id, p.prestataire_nom, p.prestataire_prenom from service s inner join client c on s.client_id = c.id inner join prestataire p on s.pres_id = p.id;
+
+--
+--VUE RESERVATION AIDE DOMICILE
+--
+CREATE OR REPLACE VIEW reserv_aide_domicile_v AS
+select s.id, s.service_date, s.service_heure, c.id, c.client_nom, c.client_prenom, p.id, p.prestataire_nom, p.prestataire_prenom, rad.description, rad.heure_depart from service s inner join client c on s.client_id = c.id inner join prestataire p on s.pres_id = p.id inner join reserv_aide_domicile rad on s.id = rad.id;
+
+--
+--VUE RESERVATION TRANSPORT
+--
+CREATE OR REPLACE VIEW reserv_transport_v AS
+select s.id, s.service_date, s.service_heure, c.id, c.client_nom, c.client_prenom, p.id, p.prestataire_nom, p.prestataire_prenom, rt.adresse_location, rt.ville, rt.code_postal_location from service s inner join client c on s.client_id = c.id inner join prestataire p on s.pres_id = p.id inner join reserv_transport rt on s.id = rt.id;
